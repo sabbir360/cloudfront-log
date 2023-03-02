@@ -33,40 +33,50 @@ for k, _ in {
 # filter for endpoint
 discard_list = [".js", ".css", ".gif", ".json", ".bmp", ".exe", ".git", "/static/", ".ico", ".png", ".php", ".sql", ".zip", ".tar", ".txt"]
 discard_count = 0
+line_count = 0
 
 file_name_for_generate = GENERATED_FILTER_FILE
 
 with open(f'{file_name_for_generate}.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(csv_header)
+
     for line in Lines:
-        # date time ignore
-        request_items = line.split("\t")
-        request_row = {
-            "date": request_items[0],
-            "time": request_items[1],
-            "size": request_items[3],
-            "client_ip": request_items[4],
-            "host": request_items[15],
-            "endpoint": request_items[7],
-            "status": request_items[8],
-            "user_agent": request_items[10],
-            "response_time": request_items[18]
-        }
-        # print(f"{line.strip()}")
-        # if any(item == request_row["endpoint"] for item in ["/static/", ".ico", ".png", ".php"]):
-        if not any(substring in request_row["endpoint"] for substring in discard_list):
-            csv_content = []
-            for _, v in request_row.items():
-                csv_content.append(v)
-            writer.writerow(csv_content)
-            csv_contents.append(line)
-        else:
-            discard_count += 1
+        try:
+            line_count += 1
+            # date time ignore
+            request_items = line.split("\t")
+            # print(f"Processing line {row_count}")
+
+            request_row = {
+                "date": request_items[0],
+                "time": request_items[1],
+                "size": request_items[3],
+                "client_ip": request_items[4],
+                "host": request_items[15],
+                "endpoint": request_items[7],
+                "status": request_items[8],
+                "user_agent": request_items[10],
+                "response_time": request_items[18]
+            }
+            # print(f"{line.strip()}")
+            # if any(item == request_row["endpoint"] for item in ["/static/", ".ico", ".png", ".php"]):
+            if not any(substring in request_row["endpoint"] for substring in discard_list):
+                csv_content = []
+                for _, v in request_row.items():
+                    csv_content.append(v)
+                writer.writerow(csv_content)
+                csv_contents.append(line)
+            else:
+                discard_count += 1
+        except IndexError:
+            print(f"Ignoring unformatted line --> {line}")
 
 # writing to file
 filtered_log_file = open(f'{file_name_for_generate}.log', 'w')
 filtered_log_file.writelines(csv_contents)
 filtered_log_file.close()
 
+print(f"Total lines {line_count}")
 print(f"Total discarded lines {discard_count}")
+print(f"Total lines after filtering {line_count-discard_count}")

@@ -3,3 +3,4 @@
 filter/*
 logs/*
 config.py
+*.pyc
