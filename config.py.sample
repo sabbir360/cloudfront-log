@@ -1,2 +1,15 @@
-LOG_FILE = "02032023_frontend_4xx_final"
-GENERATED_FILTER_FILE = "frontend_4xx"
+# For log config
+LOG_FILE = "02032023_logs_full_api.log"
+GENERATED_FILTER_FILE = "02032023_logs_full_api.LOG"
+
+# For generate output
+EXPORT_LOG = False  # For exporting .log file as same as CloudFront # High Memory
+EXPORT_CSV = False  # Export CSV with field specified on script
+# Database config is required
+EXPORT_DB = True    # This will store log to database for field specified on CSV Export.
+
+# MYSQL (Only supported for now)
+DB_HOST = ""
+DB_NAME = ""
+DB_USER = ""
+DB_PASS = ""

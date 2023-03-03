@@ -1,9 +1,13 @@
 import csv
 
-from config import LOG_FILE, GENERATED_FILTER_FILE
+from config import *
+from model import CFLogs
 
 LOG_FILE = f"logs/{LOG_FILE}"
 GENERATED_FILTER_FILE = f"filter/{GENERATED_FILTER_FILE}"
+
+if EXPORT_DB:
+    CFLogs.create_table()
 
 log_file = open(LOG_FILE, 'r')
 Lines = log_file.readlines()
@@ -38,6 +42,7 @@ line_count = 0
 file_name_for_generate = GENERATED_FILTER_FILE
 
 with open(f'{file_name_for_generate}.csv', 'w', newline='') as file:
+
     writer = csv.writer(file)
     writer.writerow(csv_header)
 
@@ -65,17 +70,32 @@ with open(f'{file_name_for_generate}.csv', 'w', newline='') as file:
                 csv_content = []
                 for _, v in request_row.items():
                     csv_content.append(v)
-                writer.writerow(csv_content)
-                csv_contents.append(line)
+                if EXPORT_CSV:
+                    writer.writerow(csv_content)
+                if EXPORT_LOG:
+                    csv_contents.append(line)
+                if EXPORT_DB:
+                    CFLogs.insert(log_date=request_row["date"],
+                                  log_time=request_row["time"],
+                                  size=request_row["size"],
+                                  client_ip=request_row["client_ip"],
+                                  host=request_row["host"],
+                                  uri=request_row["endpoint"],
+                                  status=request_row["status"],
+                                  user_agent=request_row["user_agent"],
+                                  response_time=request_row["response_time"],
+                                  ).execute()
             else:
                 discard_count += 1
         except IndexError:
             print(f"Ignoring unformatted line --> {line}")
+            discard_count += 1
 
 # writing to file
-filtered_log_file = open(f'{file_name_for_generate}.log', 'w')
-filtered_log_file.writelines(csv_contents)
-filtered_log_file.close()
+if EXPORT_LOG:
+    filtered_log_file = open(f'{file_name_for_generate}.log', 'w')
+    filtered_log_file.writelines(csv_contents)
+    filtered_log_file.close()
 
 print(f"Total lines {line_count}")
 print(f"Total discarded lines {discard_count}")
