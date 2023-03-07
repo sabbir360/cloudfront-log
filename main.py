@@ -1,7 +1,10 @@
 import csv
+import time
 
 from config import *
 from model import CFLogs
+
+start_time = time.time()
 
 LOG_FILE = f"logs/{LOG_FILE}"
 GENERATED_FILTER_FILE = f"filter/{GENERATED_FILTER_FILE}"
@@ -100,3 +103,7 @@ if EXPORT_LOG:
 print(f"Total lines {line_count}")
 print(f"Total discarded lines {discard_count}")
 print(f"Total lines after filtering {line_count-discard_count}")
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print("Time elapsed: {:.2f} seconds".format(elapsed_time))
